@@ -20,6 +20,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.MediaTrack;
 import com.google.android.gms.cast.framework.CastContext;
