@@ -3,10 +3,14 @@ package com.reactnative.googlecast;
 import android.support.annotation.NonNull;
 
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.android.gms.common.images.WebImage;
+import java.util.List;
 
 public class GoogleCastRemoteMediaClientListener
     implements RemoteMediaClient.Listener, RemoteMediaClient.ProgressListener {
@@ -34,6 +38,23 @@ public class GoogleCastRemoteMediaClientListener
           currentItemId = mediaStatus.getCurrentItemId();
           playbackStarted = false;
           playbackEnded = false;
+
+          List<WebImage> listImages= mediaStatus.getMediaInfo().getMetadata().getImages();
+          WritableArray listOfImageUrl = Arguments.createArray();
+          for(WebImage vi : listImages){
+              listOfImageUrl.pushString(vi.getUrl().toString());
+          }
+
+          WritableMap map = Arguments.createMap();
+          map.putString("title", mediaStatus.getMediaInfo().getMetadata().getString(MediaMetadata.KEY_TITLE));
+          map.putString("subtitle", mediaStatus.getMediaInfo().getMetadata().getString(MediaMetadata.KEY_SUBTITLE));
+          map.putArray("images",listOfImageUrl);
+
+          WritableMap rnmessage = Arguments.createMap();
+            rnmessage.putString("contentId", mediaStatus.getMediaInfo().getContentId());
+            rnmessage.putMap("metadata", map);
+
+          module.emitMessageToRN(GoogleCastModule.MEDIA_METADATA_CHANGED, rnmessage);
         }
 
         module.emitMessageToRN(GoogleCastModule.MEDIA_STATUS_UPDATED,

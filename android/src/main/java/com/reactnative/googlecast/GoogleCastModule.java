@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.annotations.VisibleForTesting;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -62,6 +63,8 @@ public class GoogleCastModule
             "GoogleCast:MediaPlaybackEnded";
     protected static final String MEDIA_PROGRESS_UPDATED =
             "GoogleCast:MediaProgressUpdated";
+    protected static final String MEDIA_METADATA_CHANGED =
+            "GoogleCast:MediaMetadataChanged";        
 
     protected static final  String CHANNEL_MESSAGE_RECEIVED = "GoogleCast:ChannelMessageReceived";
 
@@ -108,6 +111,7 @@ public class GoogleCastModule
         constants.put("MEDIA_PLAYBACK_STARTED", MEDIA_PLAYBACK_STARTED);
         constants.put("MEDIA_PLAYBACK_ENDED", MEDIA_PLAYBACK_ENDED);
         constants.put("MEDIA_PROGRESS_UPDATED", MEDIA_PROGRESS_UPDATED);
+        constants.put("MEDIA_METADATA_CHANGED", MEDIA_METADATA_CHANGED);
 
         constants.put("CAST_AVAILABLE", CAST_AVAILABLE);
 
@@ -207,6 +211,41 @@ public class GoogleCastModule
         });
     }
 
+    @ReactMethod
+    public void getMediaInfo(final Promise promise) {
+       getReactApplicationContext().runOnUiQueueThread(new Runnable() {
+            @Override
+            public void run() {
+                RemoteMediaClient remoteMediaClient = mCastSession.getRemoteMediaClient();
+                if (remoteMediaClient == null) {
+                    promise.reject("getMediaInfo","No remoteMediaClient");
+                    return;
+                }
+                MediaInfo mi = remoteMediaClient.getMediaInfo();
+                if (mi == null) {
+                    promise.reject("getMediaInfo","No MediaInfo");
+                    return;
+                }
+
+                List<WebImage> listImages= mi.getMetadata().getImages();
+                WritableArray listOfImageUrl = Arguments.createArray();
+                for(WebImage vi : listImages){
+                    listOfImageUrl.pushString(vi.getUrl().toString());
+                }
+
+                WritableMap map = Arguments.createMap();
+                map.putString("title",mi.getMetadata().getString(MediaMetadata.KEY_TITLE));
+                map.putString("subtitle", mi.getMetadata().getString(MediaMetadata.KEY_SUBTITLE));
+                map.putArray("images",listOfImageUrl);
+
+                WritableMap rnmessage = Arguments.createMap();
+                rnmessage.putString("contentId", mi.getContentId());
+                rnmessage.putMap("metadata", map);
+                promise.resolve(rnmessage);
+                //promise.resolve(mi.toJson().toString());
+            }
+        });
+    }
 
     @ReactMethod
     public void initChannel(final String namespace, final Promise promise) {
