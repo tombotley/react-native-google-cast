@@ -58,6 +58,9 @@ export default {
         ],
     )
   },
+  getMediaInfo(): Promise<any> {
+    return GoogleCast.getMediaInfo()
+  },
   castMedia(params: {
     mediaUrl: string,
     title?: string,

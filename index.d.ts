@@ -54,6 +54,7 @@ declare module 'react-native-google-cast' {
   const GoogleCast: {
     getCastDevice(): Promise<CastDevice>
     getCastState(): Promise<CastState>
+    getMediaInfo(): Promise<any>
     castMedia(options: CastOptions): void
     endSession(stopCast?: boolean): Promise<boolean>
     play(): void
