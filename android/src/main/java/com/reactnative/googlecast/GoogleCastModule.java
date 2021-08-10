@@ -214,35 +214,46 @@ public class GoogleCastModule
 
     @ReactMethod
     public void getMediaInfo(final Promise promise) {
-       getReactApplicationContext().runOnUiQueueThread(new Runnable() {
+        Log.i(REACT_CLASS, "Running getMediaInfo method...");
+        getReactApplicationContext().runOnUiQueueThread(new Runnable() {
             @Override
             public void run() {
+                Log.i(REACT_CLASS, "Getting remote media client...");
                 RemoteMediaClient remoteMediaClient = mCastSession.getRemoteMediaClient();
                 if (remoteMediaClient == null) {
+                    Log.i(REACT_CLASS, "No remote media client");
                     promise.reject("getMediaInfo","No remoteMediaClient");
                     return;
                 }
+                Log.i(REACT_CLASS, "Getting media info...");
                 MediaInfo mi = remoteMediaClient.getMediaInfo();
                 if (mi == null) {
+                    Log.i(REACT_CLASS, "No remote media client");
                     promise.reject("getMediaInfo","No MediaInfo");
                     return;
                 }
 
-                List<WebImage> listImages= mi.getMetadata().getImages();
+                Log.i(REACT_CLASS, "Getting media info images...");
+                List<WebImage> listImages = mi.getMetadata().getImages();
                 WritableArray listOfImageUrl = Arguments.createArray();
                 for(WebImage vi : listImages){
+                    Log.i(REACT_CLASS, "Media info image URL:" + vi.getUrl().toString());
                     listOfImageUrl.pushString(vi.getUrl().toString());
                 }
 
+                Log.i(REACT_CLASS, "Creating metadata map...");
                 WritableMap map = Arguments.createMap();
-                map.putString("title",mi.getMetadata().getString(MediaMetadata.KEY_TITLE));
+                map.putString("title", mi.getMetadata().getString(MediaMetadata.KEY_TITLE));
+                Log.i(REACT_CLASS, "Add media title to map:" + mi.getMetadata().getString(MediaMetadata.KEY_TITLE));
                 map.putString("subtitle", mi.getMetadata().getString(MediaMetadata.KEY_SUBTITLE));
-                map.putArray("images",listOfImageUrl);
+                Log.i(REACT_CLASS, "Add media subtitle to map:" + mi.getMetadata().getString(MediaMetadata.KEY_SUBTITLE));
+                map.putArray("images", listOfImageUrl);
 
                 WritableMap rnmessage = Arguments.createMap();
                 rnmessage.putString("contentId", mi.getContentId());
                 rnmessage.putMap("metadata", map);
                 promise.resolve(rnmessage);
+                Log.i(REACT_CLASS, "Media info returned");
                 //promise.resolve(mi.toJson().toString());
             }
         });
