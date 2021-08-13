@@ -218,6 +218,11 @@ public class GoogleCastModule
         getReactApplicationContext().runOnUiQueueThread(new Runnable() {
             @Override
             public void run() {
+                if (mCastSession == null) {
+                    promise.reject("getMediaInfo","No castSession");
+                    return;
+                }
+
                 Log.i(REACT_CLASS, "Getting remote media client...");
                 RemoteMediaClient remoteMediaClient = mCastSession.getRemoteMediaClient();
                 if (remoteMediaClient == null) {
