@@ -256,6 +256,8 @@ public class GoogleCastModule
 
                 WritableMap rnmessage = Arguments.createMap();
                 rnmessage.putString("contentId", mi.getContentId());
+                Log.i(REACT_CLASS, "Add content id to message:" + mi.getContentId());
+                Log.i(REACT_CLASS, "Adding media info map to message...");
                 rnmessage.putMap("metadata", map);
                 promise.resolve(rnmessage);
                 Log.i(REACT_CLASS, "Media info returned");
